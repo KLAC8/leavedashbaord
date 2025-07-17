@@ -4,12 +4,8 @@ import Employee from '@/models/Employee';
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 
-type Context = {
-  params: { id: string };
-};
-
-export async function GET(_req: Request, context: Context) {
-  const { id } = await context.params;
+export async function GET(_req: Request, { params }: { params: { id: string } }) {
+  const { id } = params;
 
   await connectDB();
 
@@ -26,8 +22,8 @@ export async function GET(_req: Request, context: Context) {
   return NextResponse.json({ employee });
 }
 
-export async function PUT(req: Request, context: Context) {
-  const { id } = await context.params;
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const { id } = params;
 
   await connectDB();
 
@@ -101,8 +97,8 @@ export async function PUT(req: Request, context: Context) {
   return NextResponse.json({ success: true, employee: updated });
 }
 
-export async function DELETE(_req: Request, context: Context) {
-  const { id } = await context.params;
+export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+  const { id } = params;
 
   await connectDB();
 
