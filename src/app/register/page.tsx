@@ -83,6 +83,7 @@ export default function RegisterPage() {
     } catch (fetchError) {
       setLoading(false);
       setError('Network error, please try again.');
+      console.error(fetchError)
     }
   }
 

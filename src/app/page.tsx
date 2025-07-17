@@ -102,7 +102,7 @@ export default function HomePage() {
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-gray-800">Welcome to Your Dashboard</h2>
-                    <p className="text-gray-600">Manage your team's leave requests and employee information</p>
+                    <p className="text-gray-600">Manage your  team&apos;s leave requests and employee information</p>
                   </div>
                 </div>
               </div>

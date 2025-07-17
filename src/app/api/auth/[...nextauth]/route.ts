@@ -1,10 +1,11 @@
-import NextAuth, { AuthOptions } from "next-auth";
+import NextAuth, { AuthOptions, Session, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 import { connectDB } from "@/lib/db";
 import Employee, { IEmployee } from "@/models/Employee";
 import bcrypt from "bcrypt";
+import { JWT } from "next-auth/jwt";
 
 export const authOptions: AuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
@@ -38,16 +39,16 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
         session.user.id = typeof token.sub === "string" ? token.sub : "";
         session.user.role = typeof token.role === "string" ? token.role : "employee";
       }
       return session;
     },
-    async jwt({ token, user }) {
-      if (user && typeof (user as any).role === "string") {
-        token.role = (user as any).role;
+    async jwt({ token, user }: { token: JWT; user?: User }) {
+      if (user && typeof user.role === "string") {
+        token.role = user.role;
       }
       return token;
     },

@@ -4,9 +4,12 @@ import Employee from '@/models/Employee';
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 
-export async function GET(req: Request, context: Promise<{ params: { id: string } }>) {
-  const { params } = await context;
-  const { id } = await params;
+type Context = {
+  params: { id: string };
+};
+
+export async function GET(_req: Request, context: Context) {
+  const { id } = context.params;
 
   await connectDB();
 
@@ -23,15 +26,16 @@ export async function GET(req: Request, context: Promise<{ params: { id: string 
   return NextResponse.json({ employee });
 }
 
-export async function PUT(req: Request, context: Promise<{ params: { id: string } }>) {
-  const { params } = await context;
-  const { id } = await params;
+export async function PUT(req: Request, context: Context) {
+  const { id } = context.params;
 
   await connectDB();
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
   }
+
+  const body = await req.json();
 
   const {
     name,
@@ -55,13 +59,13 @@ export async function PUT(req: Request, context: Promise<{ params: { id: string 
     presentAddress,
     emergencyContactName,
     emergencyContactNumber,
-  } = await req.json();
+  } = body;
 
   if (!name || !email) {
     return NextResponse.json({ error: 'Name and Email are required' }, { status: 400 });
   }
 
-  const updateData: any = {
+  const updateData: Partial<typeof body> = {
     name,
     email,
     role,
@@ -97,9 +101,8 @@ export async function PUT(req: Request, context: Promise<{ params: { id: string 
   return NextResponse.json({ success: true, employee: updated });
 }
 
-export async function DELETE(_req: Request, context: Promise<{ params: { id: string } }>) {
-  const { params } = await context;
-  const { id } = params;
+export async function DELETE(_req: Request, context: Context) {
+  const { id } = context.params;
 
   await connectDB();
 

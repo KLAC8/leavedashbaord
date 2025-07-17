@@ -85,7 +85,7 @@ export async function POST(req: Request) {
   });
 
   await newEmployee.save();
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password: _pw, ...employeeWithoutPassword } = newEmployee.toObject();
   return NextResponse.json({ success: true, employee: employeeWithoutPassword });
 }
