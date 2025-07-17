@@ -9,7 +9,7 @@ type Context = {
 };
 
 export async function GET(_req: Request, context: Context) {
-  const { id } = context.params;
+  const { id } = await context.params;
 
   await connectDB();
 
@@ -27,7 +27,7 @@ export async function GET(_req: Request, context: Context) {
 }
 
 export async function PUT(req: Request, context: Context) {
-  const { id } = context.params;
+  const { id } = await context.params;
 
   await connectDB();
 
@@ -102,7 +102,7 @@ export async function PUT(req: Request, context: Context) {
 }
 
 export async function DELETE(_req: Request, context: Context) {
-  const { id } = context.params;
+  const { id } = await context.params;
 
   await connectDB();
 

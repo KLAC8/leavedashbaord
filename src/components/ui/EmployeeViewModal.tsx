@@ -20,11 +20,34 @@ import {
   Phone,
 } from 'lucide-react';
 
+interface Employee {
+  name: string;
+  email: string;
+  employeeId: string;
+  designation?: string;
+  role: string;
+  joinedDate?: string;
+  sickLeaveBalance?: number;
+  sickLeaveTaken?: number;
+  annualLeaveBalance?: number;
+  annualLeaveTaken?: number;
+  frLeaveBalance?: number;
+  frLeaveTaken?: number;
+  grossSalary?: number;
+  imageUrl?: string;
+  nid?: string;
+  nationality?: string;
+  permanentAddress?: string;
+  presentAddress?: string;
+  emergencyContactName?: string;
+  emergencyContactNumber?: string;
+}
+
 interface EmployeeViewModalProps {
   open: boolean;
   onClose: () => void;
   employeeId?: string | null;
-  employee?: any;
+  employee?: Employee | null;
 }
 
 export default function EmployeeViewModal({ open, onClose, employee }: EmployeeViewModalProps) {
@@ -169,7 +192,7 @@ export default function EmployeeViewModal({ open, onClose, employee }: EmployeeV
           <section>
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Leave Summary</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {leaveData.map(({ type, eligible, taken, balance, icon: Icon }) => (
+              {leaveData.map(({ type, eligible, taken, balance }) => (
                 <div key={type} className="p-6 rounded-lg border bg-gray-50/50 hover:bg-gray-50 transition-colors">
                   <div className="flex items-center gap-3 mb-4">
                     <h4 className="font-medium text-[13px] text-gray-900">{type}</h4>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { FileRejection, useDropzone } from 'react-dropzone';
 import { toast, Toaster } from 'react-hot-toast';
 import Cropper, { Area } from 'react-easy-crop';
 import getCroppedImg from '@/lib/cropImage';
@@ -79,7 +79,7 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const onDrop = useCallback((acceptedFiles: File[], fileRejections: any[]) => {
+  const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
     if (fileRejections.length > 0) {
       toast.error('Only image files under 5MB are allowed');
       return;

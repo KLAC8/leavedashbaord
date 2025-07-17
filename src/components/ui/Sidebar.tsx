@@ -27,7 +27,6 @@ export default function Sidebar({
   sidebarOpen, 
   setSidebarOpen, 
   sidebarCollapsed, 
-  setSidebarCollapsed 
 }: SidebarProps) {
   const { data: session } = useSession();
   const router = useRouter();

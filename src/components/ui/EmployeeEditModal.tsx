@@ -5,9 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { useDropzone } from 'react-dropzone';
+import { useDropzone, FileRejection } from 'react-dropzone';
 import { toast, Toaster } from 'react-hot-toast';
-import Cropper from 'react-easy-crop';
+import Cropper, { Area } from 'react-easy-crop';
 import getCroppedImg from '@/lib/cropImage';
 import {
   User, Mail, Hash, Calendar, Briefcase, DollarSign, Shield,
@@ -50,7 +50,7 @@ interface Props {
 export default function EmployeeEditModal({ open, onClose, employee, onSave }: Props) {
   const [formData, setFormData] = useState<Employee | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [showCropper, setShowCropper] = useState(false);
@@ -68,7 +68,7 @@ export default function EmployeeEditModal({ open, onClose, employee, onSave }: P
     );
   };
 
-  const onDrop = useCallback((acceptedFiles: File[], rejections: any[]) => {
+  const onDrop = useCallback((acceptedFiles: File[], rejections: FileRejection[]) => {
     if (rejections.length > 0) {
       toast.error('Only image files under 5MB allowed');
       return;
@@ -89,7 +89,7 @@ export default function EmployeeEditModal({ open, onClose, employee, onSave }: P
     multiple: false,
   });
 
-  const handleCropComplete = useCallback((_: any, croppedPixels: any) => {
+  const handleCropComplete = useCallback((_: Area, croppedPixels: Area) => {
     setCroppedAreaPixels(croppedPixels);
   }, []);
 
@@ -142,8 +142,12 @@ export default function EmployeeEditModal({ open, onClose, employee, onSave }: P
       toast.success('Employee updated');
       onSave(data.employee);
       onClose();
-    } catch (err: any) {
-      toast.error(err.message || 'Unexpected error');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error('Unexpected error');
+      }
     } finally {
       setLoading(false);
     }

@@ -56,6 +56,7 @@ export default function EmployeeDatabase() {
       setTotalEmployees(data.total || 0);
     } catch (error) {
       alert('Failed to fetch employees');
+      console.error(error)
     } finally {
       setLoading(false);
     }
@@ -112,17 +113,6 @@ export default function EmployeeDatabase() {
   function openEditModal(emp: Employee) {
     setEditingEmployee(emp);
     setIsEditModalOpen(true);
-  }
-
-  function closeEditModal(refresh = false) {
-    setIsEditModalOpen(false);
-    setEditingEmployee(null);
-    if (refresh) {
-      fetchEmployees(page);
-      if (isViewModalOpen && viewEmployee?._id === editingEmployee?._id && editingEmployee) {
-        setViewEmployee(null);
-      }
-    }
   }
 
   async function openViewModal(emp: Employee) {
