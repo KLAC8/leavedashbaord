@@ -3,8 +3,9 @@ import { connectDB } from '@/lib/db';
 import Employee from '@/models/Employee';
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
+import type { NextRequest } from 'next/server';
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const { id } = params;
 
   await connectDB();
@@ -22,7 +23,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   return NextResponse.json({ employee });
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   const { id } = params;
 
   await connectDB();
@@ -31,7 +32,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
   }
 
-  const body = await req.json();
+  const body = await request.json();
 
   const {
     name,
@@ -97,7 +98,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   return NextResponse.json({ success: true, employee: updated });
 }
 
-export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   const { id } = params;
 
   await connectDB();
