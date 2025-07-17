@@ -25,7 +25,6 @@ interface LeaveRequestTableProps {
 }
 
 export default function LeaveRequestTable({
-  role,
   withExport = false,
   withPagination = false,
   withFilters = false,

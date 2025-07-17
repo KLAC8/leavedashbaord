@@ -3,10 +3,9 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-
 import EmployeeDatabase from '@/components/ui/EmployeeDatabase';
 import Sidebar from '@/components/ui/Sidebar';
-import { Users, Calendar, ChevronLeft, ChevronRight, Menu, Building2 } from 'lucide-react';
+import { Users, Calendar, ChevronLeft, ChevronRight, Building2 } from 'lucide-react';
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -23,10 +22,8 @@ export default function HomePage() {
     }
   }, [session, status, router]);
 
-  // Show nothing while loading session
   if (status === 'loading') return <div>Loading...</div>;
 
-  // Prevent rendering while session is null
   if (!session) return null;
 
   return (

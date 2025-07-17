@@ -20,8 +20,6 @@ import {
   DollarSign, 
   Shield,
   Image as ImageIcon,
-  X,
-  Crop,
   Check,
   Loader2
 } from 'lucide-react';

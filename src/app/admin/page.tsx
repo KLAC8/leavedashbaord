@@ -1,12 +1,9 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-
 import Sidebar from '@/components/ui/Sidebar';
 import DashboardCard from '@/components/ui/DashboardCard';
-import LeaveRequestForm from '@/components/ui/LeaveRequestForm';
 import LeaveRequestTable from '@/components/ui/LeaveRequestTable';
 import ApprovalModal from '@/components/ui/ApprovalModal';
 import CommentThread from '@/components/ui/CommentThread';

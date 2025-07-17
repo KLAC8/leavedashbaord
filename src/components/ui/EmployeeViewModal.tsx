@@ -4,7 +4,6 @@ import Image from 'next/image';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from './button';
@@ -14,7 +13,6 @@ import {
   Building,
   User,
   DollarSign,
-  X,
   Clock,
   CheckCircle,
   AlertCircle,

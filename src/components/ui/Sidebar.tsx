@@ -3,19 +3,14 @@
 import Link from 'next/link';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import {  useEffect } from 'react';
 import {
-  Menu,
   Settings,
   Home,
   LogIn,
   UserPlus,
   Shield,
   X,
-  Calendar,
-  Users,
-  ChevronLeft,
-  ChevronRight,
   Database,
   LogOut,
   Building2,
