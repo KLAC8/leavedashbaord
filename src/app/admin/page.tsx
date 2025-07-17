@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/ui/Sidebar';
 import DashboardCard from '@/components/ui/DashboardCard';
 import LeaveRequestTable from '@/components/ui/LeaveRequestTable';
-import ApprovalModal from '@/components/ui/ApprovalModal';
-import CommentThread from '@/components/ui/CommentThread';
 import { Calendar, Menu, ChevronRight, ChevronLeft } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -118,8 +116,6 @@ export default function AdminDashboard() {
           </button>
 
           <LeaveRequestTable role="admin" withExport withPagination withFilters withComments />
-          <ApprovalModal />
-          <CommentThread />
         </main>
 
         {/* Footer */}

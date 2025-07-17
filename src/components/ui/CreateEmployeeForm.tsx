@@ -3,35 +3,53 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast, Toaster } from 'react-hot-toast';
-import Cropper from 'react-easy-crop';
+import Cropper, { Area } from 'react-easy-crop';
 import getCroppedImg from '@/lib/cropImage';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { 
-  Upload, 
-  User, 
-  Mail, 
-  Lock, 
-  Hash, 
-  Calendar, 
-  Briefcase, 
-  DollarSign, 
+import {
+  Upload,
+  User,
+  Mail,
+  Lock,
+  Hash,
+  Calendar,
+  Briefcase,
+  DollarSign,
   Shield,
   Image as ImageIcon,
   Check,
-  Loader2
+  Loader2,
 } from 'lucide-react';
+
+interface EmployeeData {
+  name: string;
+  email: string;
+  password: string;
+  employeeId: string;
+  joinedDate: string;
+  role: string;
+  designation: string;
+  grossSalary: number;
+  nid: string;
+  nationality: string;
+  permanentAddress: string;
+  presentAddress: string;
+  emergencyContactName: string;
+  emergencyContactNumber: string;
+  imageUrl?: string;
+}
 
 interface CreateEmployeeFormProps {
   open: boolean;
   onClose: () => void;
-  onCreate: (newEmployee: any) => void;
+  onCreate: (newEmployee: EmployeeData) => void;
 }
 
 export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEmployeeFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<EmployeeData, 'imageUrl' | 'grossSalary'> & { grossSalary: string }>({
     name: '',
     email: '',
     password: '',
@@ -50,7 +68,7 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
 
   const [loading, setLoading] = useState(false);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [showCropper, setShowCropper] = useState(false);
@@ -58,7 +76,7 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const onDrop = useCallback((acceptedFiles: File[], fileRejections: any[]) => {
@@ -82,20 +100,43 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
     multiple: false,
   });
 
-  const handleCropComplete = useCallback((_: any, croppedPixels: any) => {
+  const handleCropComplete = useCallback((_: Area, croppedPixels: Area) => {
     setCroppedAreaPixels(croppedPixels);
   }, []);
 
   const handleSubmit = async () => {
     const {
-      name, email, password, role, designation, employeeId, joinedDate, grossSalary,
-      nid, nationality, permanentAddress, presentAddress, emergencyContactName, emergencyContactNumber,
+      name,
+      email,
+      password,
+      role,
+      designation,
+      employeeId,
+      joinedDate,
+      grossSalary,
+      nid,
+      nationality,
+      permanentAddress,
+      presentAddress,
+      emergencyContactName,
+      emergencyContactNumber,
     } = formData;
 
     if (
-      !name || !email || !password || !role || !designation || !employeeId ||
-      !joinedDate || !grossSalary || !nid || !nationality || !permanentAddress ||
-      !presentAddress || !emergencyContactName || !emergencyContactNumber
+      !name ||
+      !email ||
+      !password ||
+      !role ||
+      !designation ||
+      !employeeId ||
+      !joinedDate ||
+      !grossSalary ||
+      !nid ||
+      !nationality ||
+      !permanentAddress ||
+      !presentAddress ||
+      !emergencyContactName ||
+      !emergencyContactNumber
     ) {
       toast.error('Please fill all required fields.');
       return;
@@ -171,8 +212,9 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
       setImageSrc(null);
       setShowCropper(false);
       setCurrentStep(1);
-    } catch (err: any) {
-      toast.error(err.message || 'Unexpected error occurred.');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unexpected error occurred.';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -186,14 +228,14 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
   const nextStep = () => {
     if (currentStep === 1) {
       const requiredFields = ['name', 'email', 'password', 'employeeId'];
-      if (requiredFields.some(f => !formData[f as keyof typeof formData])) {
+      if (requiredFields.some((f) => !formData[f as keyof typeof formData])) {
         toast.error('Please fill in all required fields in Step 1');
         return;
       }
       setCurrentStep(2);
     } else if (currentStep === 2) {
       const requiredFields = ['joinedDate', 'designation', 'grossSalary', 'role'];
-      if (requiredFields.some(f => !formData[f as keyof typeof formData])) {
+      if (requiredFields.some((f) => !formData[f as keyof typeof formData])) {
         toast.error('Please fill in all required fields in Step 2');
         return;
       }
@@ -213,7 +255,7 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
           <User className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-lg font-semibold text-slate-800">Basic Information</h3>
-        <p className="text-sm text-slate-600">Enter the employee's personal details</p>
+        <p className="text-sm text-slate-600">Enter the employee&apos;s personal details</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -222,10 +264,10 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
             <User className="w-4 h-4" />
             Full Name *
           </Label>
-          <Input 
-            name="name" 
-            value={formData.name} 
-            onChange={handleChange} 
+          <Input
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
             disabled={loading}
             placeholder="John Doe"
             className="h-11"
@@ -237,11 +279,11 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
             <Mail className="w-4 h-4" />
             Email Address *
           </Label>
-          <Input 
-            name="email" 
+          <Input
+            name="email"
             type="email"
-            value={formData.email} 
-            onChange={handleChange} 
+            value={formData.email}
+            onChange={handleChange}
             disabled={loading}
             placeholder="john.doe@company.com"
             className="h-11"
@@ -253,11 +295,11 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
             <Lock className="w-4 h-4" />
             Password *
           </Label>
-          <Input 
-            type="password" 
-            name="password" 
-            value={formData.password} 
-            onChange={handleChange} 
+          <Input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
             disabled={loading}
             placeholder="••••••••"
             className="h-11"
@@ -269,10 +311,10 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
             <Hash className="w-4 h-4" />
             Employee ID *
           </Label>
-          <Input 
-            name="employeeId" 
-            value={formData.employeeId} 
-            onChange={handleChange} 
+          <Input
+            name="employeeId"
+            value={formData.employeeId}
+            onChange={handleChange}
             disabled={loading}
             placeholder="EMP001"
             className="h-11"
@@ -281,7 +323,7 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
       </div>
 
       <div className="flex justify-end">
-        <Button 
+        <Button
           onClick={nextStep}
           className="px-8 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg flex items-center gap-2"
         >
@@ -301,7 +343,7 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
           <Briefcase className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-lg font-semibold text-slate-800">Professional Details</h3>
-        <p className="text-sm text-slate-600">Complete the employee's work information</p>
+        <p className="text-sm text-slate-600">Complete the employee&apos;s work information</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -310,11 +352,11 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
             <Calendar className="w-4 h-4" />
             Joined Date *
           </Label>
-          <Input 
-            type="date" 
-            name="joinedDate" 
-            value={formData.joinedDate} 
-            onChange={handleChange} 
+          <Input
+            type="date"
+            name="joinedDate"
+            value={formData.joinedDate}
+            onChange={handleChange}
             disabled={loading}
             className="h-11"
           />
@@ -325,10 +367,10 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
             <Briefcase className="w-4 h-4" />
             Designation *
           </Label>
-          <Input 
-            name="designation" 
-            value={formData.designation} 
-            onChange={handleChange} 
+          <Input
+            name="designation"
+            value={formData.designation}
+            onChange={handleChange}
             disabled={loading}
             placeholder="Software Engineer"
             className="h-11"
@@ -340,11 +382,11 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
             <DollarSign className="w-4 h-4" />
             Gross Salary (MVR) *
           </Label>
-          <Input 
-            type="number" 
-            name="grossSalary" 
-            value={formData.grossSalary} 
-            onChange={handleChange} 
+          <Input
+            type="number"
+            name="grossSalary"
+            value={formData.grossSalary}
+            onChange={handleChange}
             disabled={loading}
             placeholder="25000"
             className="h-11"
@@ -356,11 +398,11 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
             <Shield className="w-4 h-4" />
             Role *
           </Label>
-          <select 
-            name="role" 
-            value={formData.role} 
-            onChange={handleChange} 
-            disabled={loading} 
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            disabled={loading}
             className="h-11 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
           >
             <option value="employee">Employee</option>
@@ -376,12 +418,10 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
           <ImageIcon className="w-4 h-4" />
           Profile Picture
         </Label>
-        <div 
-          {...getRootProps()} 
+        <div
+          {...getRootProps()}
           className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200 ${
-            isDragActive 
-              ? 'border-blue-400 bg-blue-50' 
-              : 'border-slate-300 hover:border-blue-400 hover:bg-slate-50'
+            isDragActive ? 'border-blue-400 bg-blue-50' : 'border-slate-300 hover:border-blue-400 hover:bg-slate-50'
           }`}
         >
           <input {...getInputProps()} />
@@ -406,15 +446,11 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
       </div>
 
       <div className="flex justify-between">
-        <Button 
-          onClick={prevStep}
-          variant="outline"
-          className="px-8 py-2 border-slate-300 text-slate-700 rounded-lg"
-        >
+        <Button onClick={prevStep} variant="outline" className="px-8 py-2 border-slate-300 text-slate-700 rounded-lg">
           Previous
         </Button>
-        <Button 
-          onClick={nextStep} 
+        <Button
+          onClick={nextStep}
           disabled={loading}
           className="px-8 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg"
         >
@@ -436,7 +472,9 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
-          <Label htmlFor="nid" className="text-sm font-medium text-slate-700">National ID (NID) *</Label>
+          <Label htmlFor="nid" className="text-sm font-medium text-slate-700">
+            National ID (NID) *
+          </Label>
           <Input
             id="nid"
             name="nid"
@@ -449,7 +487,9 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
         </div>
 
         <div>
-          <Label htmlFor="nationality" className="text-sm font-medium text-slate-700">Nationality *</Label>
+          <Label htmlFor="nationality" className="text-sm font-medium text-slate-700">
+            Nationality *
+          </Label>
           <Input
             id="nationality"
             name="nationality"
@@ -462,7 +502,9 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
         </div>
 
         <div>
-          <Label htmlFor="permanentAddress" className="text-sm font-medium text-slate-700">Permanent Address *</Label>
+          <Label htmlFor="permanentAddress" className="text-sm font-medium text-slate-700">
+            Permanent Address *
+          </Label>
           <Input
             id="permanentAddress"
             name="permanentAddress"
@@ -475,7 +517,9 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
         </div>
 
         <div>
-          <Label htmlFor="presentAddress" className="text-sm font-medium text-slate-700">Present Address *</Label>
+          <Label htmlFor="presentAddress" className="text-sm font-medium text-slate-700">
+            Present Address *
+          </Label>
           <Input
             id="presentAddress"
             name="presentAddress"
@@ -488,7 +532,9 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
         </div>
 
         <div>
-          <Label htmlFor="emergencyContactName" className="text-sm font-medium text-slate-700">Emergency Contact Name *</Label>
+          <Label htmlFor="emergencyContactName" className="text-sm font-medium text-slate-700">
+            Emergency Contact Name *
+          </Label>
           <Input
             id="emergencyContactName"
             name="emergencyContactName"
@@ -501,25 +547,23 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
         </div>
 
         <div>
-          <Label htmlFor="emergencyContactNumber" className="text-sm font-medium text-slate-700">Emergency Contact Number *</Label>
+          <Label htmlFor="emergencyContactNumber" className="text-sm font-medium text-slate-700">
+            Emergency Contact Number *
+          </Label>
           <Input
             id="emergencyContactNumber"
             name="emergencyContactNumber"
             value={formData.emergencyContactNumber}
             onChange={handleChange}
             disabled={loading}
-            placeholder="+960 1234567"
+            placeholder="+960 123 4567"
             className="h-11"
           />
         </div>
       </div>
 
       <div className="flex justify-between">
-        <Button 
-          onClick={prevStep}
-          variant="outline"
-          className="px-8 py-2 border-slate-300 text-slate-700 rounded-lg"
-        >
+        <Button onClick={prevStep} variant="outline" className="px-8 py-2 border-slate-300 text-slate-700 rounded-lg">
           Previous
         </Button>
         <Button
@@ -527,14 +571,7 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
           disabled={loading}
           className="px-8 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg flex items-center gap-2"
         >
-          {loading ? (
-            <>
-              Submitting
-              <Loader2 className="animate-spin w-4 h-4" />
-            </>
-          ) : (
-            'Submit'
-          )}
+          {loading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Create Employee'}
         </Button>
       </div>
     </div>
@@ -563,7 +600,9 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
                 onCropComplete={handleCropComplete}
               />
               <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 px-4">
-                <Button onClick={() => setShowCropper(false)} variant="outline">Cancel</Button>
+                <Button onClick={() => setShowCropper(false)} variant="outline">
+                  Cancel
+                </Button>
                 <Button onClick={handleCropConfirm}>Crop & Continue</Button>
               </div>
             </div>
