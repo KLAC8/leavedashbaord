@@ -1,31 +1,52 @@
 import { connectDB } from '@/lib/db';
 import Employee from '@/models/Employee';
-import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
+  await connectDB();
+
   try {
-    const { name, email, password } = await req.json();
-
-    if (!name || !email || !password) {
-      return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
-    }
-
-    await connectDB();
-    const existing = await Employee.findOne({ email });
-    if (existing) {
-      return NextResponse.json({ error: 'User already exists' }, { status: 400 });
-    }
-
-    const hashed = await bcrypt.hash(password, 10);
-    const newUser = new Employee({
+    const {
       name,
       email,
-      password: hashed,
-      role: 'employee',
+      password,
+      employeeId,
+      designation,
+      nid,
+      nationality,
+      presentAddress,
+      permanentAddress,
+      emergencyContactName,
+      emergencyContactNumber,
+      joinedDate,
+    } = await req.json();
+
+    // Check for existing employee
+    const existingEmployee = await Employee.findOne({ email });
+    if (existingEmployee) {
+      return NextResponse.json({ error: 'Email already in use' }, { status: 400 });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create employee
+    await Employee.create({
+      name,
+      email,
+      password: hashedPassword,
+      employeeId,
+      designation,
+      nid,
+      nationality,
+      presentAddress,
+      permanentAddress,
+      emergencyContactName,
+      emergencyContactNumber,
+      joinedDate,
     });
 
-    await newUser.save();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Register API error:', error);
