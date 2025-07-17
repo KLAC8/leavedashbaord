@@ -7,7 +7,7 @@ import Employee, { IEmployee } from "@/models/Employee";
 import bcrypt from "bcrypt";
 import { JWT } from "next-auth/jwt";
 
-export const authOptions: AuthOptions = {
+const authOptions: AuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({
@@ -61,6 +61,7 @@ export const authOptions: AuthOptions = {
   },
 };
 
+// Export only the route handlers - no other exports!
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
