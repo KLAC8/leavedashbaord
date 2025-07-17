@@ -1,4 +1,4 @@
-import NextAuth, { AuthOptions, Session, User } from "next-auth";
+import NextAuth, { AuthOptions, SessionStrategy } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
@@ -7,7 +7,7 @@ import Employee, { IEmployee } from "@/models/Employee";
 import bcrypt from "bcrypt";
 import { JWT } from "next-auth/jwt";
 
-export const authOptions: AuthOptions = {
+const authOptions: AuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({
@@ -39,14 +39,14 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, token }: { session: Session; token: JWT }) {
+    async session({ session, token }: { session: any; token: JWT }) {
       if (session.user) {
         session.user.id = typeof token.sub === "string" ? token.sub : "";
         session.user.role = typeof token.role === "string" ? token.role : "employee";
       }
       return session;
     },
-    async jwt({ token, user }: { token: JWT; user?: User }) {
+    async jwt({ token, user }: { token: JWT; user?: any }) {
       if (user && typeof user.role === "string") {
         token.role = user.role;
       }
@@ -54,7 +54,7 @@ export const authOptions: AuthOptions = {
     },
   },
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as SessionStrategy,
   },
   pages: {
     signIn: "/login",
