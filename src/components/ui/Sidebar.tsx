@@ -207,7 +207,7 @@ export default function Sidebar({
             {/* Admin Dashboard Button */}
             <button
               onClick={handleAdminAccess}
-              className={`group w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-emerald-700 hover:bg-gradient-to-r hover:from-emerald-100/80 hover:to-teal-100/80 hover:text-emerald-900 transition-all duration-200 backdrop-blur-sm ${
+              className={`group w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-emerald-700 hover:bg-gradient-to-r hover:from-emerald-100/80 hover:to-teal-100/80 hover:text-emerald-900 transition-all cursor-pointer duration-200 backdrop-blur-sm ${
                 sidebarCollapsed ? 'justify-center' : ''
               }`}
             >
@@ -216,7 +216,7 @@ export default function Sidebar({
                 <span className="font-medium">Admin Dashboard</span>
               )}
               {sidebarCollapsed && (
-                <span className="absolute left-full ml-2 px-2 py-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap cursor-pointer pointer-events-none z-50 shadow-lg">
+                <span className="absolute left-full ml-2 px-2 py-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap  pointer-events-none z-50 shadow-lg">
                   Admin Dashboard
                 </span>
               )}
