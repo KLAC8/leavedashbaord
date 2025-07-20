@@ -5,8 +5,8 @@ import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 import type { NextRequest } from 'next/server';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   await connectDB();
 
@@ -23,8 +23,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   return NextResponse.json({ employee });
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   await connectDB();
 
@@ -98,8 +98,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   return NextResponse.json({ success: true, employee: updated });
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   await connectDB();
 
