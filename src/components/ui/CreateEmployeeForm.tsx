@@ -1,14 +1,12 @@
 'use client';
-
 import { useCallback, useState } from 'react';
 import { FileRejection, useDropzone } from 'react-dropzone';
 import { toast, Toaster } from 'react-hot-toast';
 import Cropper, { Area } from 'react-easy-crop';
 import getCroppedImg from '@/lib/cropImage';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import {
   Upload,
   User,
@@ -19,7 +17,6 @@ import {
   Briefcase,
   DollarSign,
   Shield,
-  Image as ImageIcon,
   Check,
   Loader2,
   Building2,
