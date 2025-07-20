@@ -106,7 +106,7 @@ export default function Sidebar({
 
       {/* Sidebar */}
       <aside
-        className={`bg-white/90 backdrop-blur-xl shadow-2xl border-r border-emerald-200/50 flex flex-col justify-between transition-all duration-300 ease-in-out fixed lg:static top-0 left-0 h-screen min-h-screen z-50 ${
+        className={`bg-white/90 backdrop-blur-xl shadow-2xl border-r border-emerald-200/50 flex flex-col justify-between transition-all duration-300 ease-in-out fixed lg:static top-0 left-0 h-full min-h-full z-50 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         } ${
           sidebarCollapsed ? 'w-16' : 'w-64'

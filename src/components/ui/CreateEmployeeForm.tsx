@@ -22,6 +22,13 @@ import {
   Image as ImageIcon,
   Check,
   Loader2,
+  Building2,
+  CreditCard,
+  Globe,
+  MapPin,
+  Phone,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 interface EmployeeData {
@@ -73,6 +80,9 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
   const [zoom, setZoom] = useState(1);
   const [showCropper, setShowCropper] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const totalSteps = 4;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -222,7 +232,6 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
 
   const handleCropConfirm = () => {
     setShowCropper(false);
-    setCurrentStep(2);
   };
 
   const nextStep = () => {
@@ -240,170 +249,178 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
         return;
       }
       setCurrentStep(3);
+    } else if (currentStep === 3) {
+      const requiredFields = ['nid', 'nationality', 'permanentAddress', 'presentAddress'];
+      if (requiredFields.some((f) => !formData[f as keyof typeof formData])) {
+        toast.error('Please fill in all required fields in Step 3');
+        return;
+      }
+      setCurrentStep(4);
     }
   };
 
   const prevStep = () => {
-    if (currentStep === 3) setCurrentStep(2);
+    if (currentStep === 4) setCurrentStep(3);
+    else if (currentStep === 3) setCurrentStep(2);
     else if (currentStep === 2) setCurrentStep(1);
   };
 
   const renderStep1 = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <User className="w-8 h-8 text-white" />
-        </div>
-        <h3 className="text-lg font-semibold text-slate-800">Basic Information</h3>
-        <p className="text-sm text-slate-600">Enter the employee&apos;s personal details</p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-            <User className="w-4 h-4" />
-            Full Name *
-          </Label>
+    <div className="space-y-3">
+      <h2 className="text-lg font-semibold text-gray-800 mb-3">Basic Information</h2>
+      
+      <div className="space-y-1">
+        <label htmlFor="name" className="text-sm font-medium text-gray-700">Full Name</label>
+        <div className="relative">
+          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
+            id="name"
             name="name"
+            type="text"
+            placeholder="Enter full name"
             value={formData.name}
             onChange={handleChange}
             disabled={loading}
-            placeholder="John Doe"
-            className="h-11"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-            <Mail className="w-4 h-4" />
-            Email Address *
-          </Label>
-          <Input
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            disabled={loading}
-            placeholder="john.doe@company.com"
-            className="h-11"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-            <Lock className="w-4 h-4" />
-            Password *
-          </Label>
-          <Input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            disabled={loading}
-            placeholder="••••••••"
-            className="h-11"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-            <Hash className="w-4 h-4" />
-            Employee ID *
-          </Label>
-          <Input
-            name="employeeId"
-            value={formData.employeeId}
-            onChange={handleChange}
-            disabled={loading}
-            placeholder="EMP001"
-            className="h-11"
+            className="pl-9 h-10 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg text-sm"
+            required
           />
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <Button
-          onClick={nextStep}
-          className="px-8 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg flex items-center gap-2"
-        >
-          Next Step
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </Button>
+      <div className="space-y-1">
+        <label htmlFor="email" className="text-sm font-medium text-gray-700">Email Address</label>
+        <div className="relative">
+          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Enter email address"
+            value={formData.email}
+            onChange={handleChange}
+            disabled={loading}
+            className="pl-9 h-10 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg text-sm"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <label htmlFor="password" className="text-sm font-medium text-gray-700">Password</label>
+        <div className="relative">
+          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            id="password"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Create a password"
+            value={formData.password}
+            onChange={handleChange}
+            disabled={loading}
+            className="pl-9 pr-9 h-10 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg text-sm"
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <label htmlFor="employeeId" className="text-sm font-medium text-gray-700">Employee ID</label>
+        <div className="relative">
+          <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            id="employeeId"
+            name="employeeId"
+            type="text"
+            placeholder="Enter employee ID"
+            value={formData.employeeId}
+            onChange={handleChange}
+            disabled={loading}
+            className="pl-9 h-10 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg text-sm"
+            required
+          />
+        </div>
       </div>
     </div>
   );
 
   const renderStep2 = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Briefcase className="w-8 h-8 text-white" />
-        </div>
-        <h3 className="text-lg font-semibold text-slate-800">Professional Details</h3>
-        <p className="text-sm text-slate-600">Complete the employee&apos;s work information</p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Joined Date *
-          </Label>
+    <div className="space-y-3">
+      <h2 className="text-lg font-semibold text-gray-800 mb-3">Professional Information</h2>
+      
+      <div className="space-y-1">
+        <label htmlFor="joinedDate" className="text-sm font-medium text-gray-700">Joined Date</label>
+        <div className="relative">
+          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
-            type="date"
+            id="joinedDate"
             name="joinedDate"
+            type="date"
             value={formData.joinedDate}
             onChange={handleChange}
             disabled={loading}
-            className="h-11"
+            className="pl-9 h-10 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg text-sm"
+            required
           />
         </div>
+      </div>
 
-        <div className="space-y-2">
-          <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-            <Briefcase className="w-4 h-4" />
-            Designation *
-          </Label>
+      <div className="space-y-1">
+        <label htmlFor="designation" className="text-sm font-medium text-gray-700">Designation</label>
+        <div className="relative">
+          <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
+            id="designation"
             name="designation"
+            type="text"
+            placeholder="Enter job designation"
             value={formData.designation}
             onChange={handleChange}
             disabled={loading}
-            placeholder="Software Engineer"
-            className="h-11"
+            className="pl-9 h-10 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg text-sm"
+            required
           />
         </div>
+      </div>
 
-        <div className="space-y-2">
-          <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-            <DollarSign className="w-4 h-4" />
-            Gross Salary (MVR) *
-          </Label>
+      <div className="space-y-1">
+        <label htmlFor="grossSalary" className="text-sm font-medium text-gray-700">Gross Salary (MVR)</label>
+        <div className="relative">
+          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
-            type="number"
+            id="grossSalary"
             name="grossSalary"
+            type="number"
+            placeholder="Enter gross salary"
             value={formData.grossSalary}
             onChange={handleChange}
             disabled={loading}
-            placeholder="25000"
-            className="h-11"
+            className="pl-9 h-10 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg text-sm"
+            min="0"
+            step="0.01"
+            required
           />
         </div>
+      </div>
 
-        <div className="space-y-2">
-          <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-            <Shield className="w-4 h-4" />
-            Role *
-          </Label>
+      <div className="space-y-1">
+        <label htmlFor="role" className="text-sm font-medium text-gray-700">Role</label>
+        <div className="relative">
+          <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <select
+            id="role"
             name="role"
             value={formData.role}
             onChange={handleChange}
             disabled={loading}
-            className="h-11 w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"
+            className="pl-9 h-10 w-full border border-gray-300 rounded-lg focus:border-emerald-500 focus:ring-emerald-500 bg-white text-sm"
+            required
           >
             <option value="employee">Employee</option>
             <option value="admin">Admin</option>
@@ -413,166 +430,162 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
       </div>
 
       {/* Profile Picture Upload */}
-      <div className="space-y-4">
-        <Label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-          <ImageIcon className="w-4 h-4" />
-          Profile Picture
-        </Label>
+      <div className="space-y-1">
+        <label className="text-sm font-medium text-gray-700">Profile Picture (Optional)</label>
         <div
           {...getRootProps()}
-          className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200 ${
-            isDragActive ? 'border-blue-400 bg-blue-50' : 'border-slate-300 hover:border-blue-400 hover:bg-slate-50'
+          className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all duration-200 ${
+            isDragActive ? 'border-emerald-400 bg-emerald-50' : 'border-gray-300 hover:border-emerald-400 hover:bg-gray-50'
           }`}
         >
           <input {...getInputProps()} />
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
-              <Upload className="w-6 h-6 text-slate-500" />
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+              <Upload className="w-4 h-4 text-gray-500" />
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-700">
+              <p className="text-xs font-medium text-gray-700">
                 {isDragActive ? 'Drop the image here...' : 'Drag & drop or click to upload'}
               </p>
-              <p className="text-xs text-slate-500 mt-1">PNG, JPG up to 5MB</p>
+              <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
             </div>
           </div>
         </div>
         {imageSrc && !showCropper && (
-          <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-            <Check className="w-5 h-5 text-green-600" />
-            <span className="text-sm text-green-700">Image uploaded and cropped successfully</span>
+          <div className="flex items-center gap-2 p-2 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <Check className="w-4 h-4 text-emerald-600" />
+            <span className="text-xs text-emerald-700">Image uploaded and cropped successfully</span>
           </div>
         )}
-      </div>
-
-      <div className="flex justify-between">
-        <Button onClick={prevStep} variant="outline" className="px-8 py-2 border-slate-300 text-slate-700 rounded-lg">
-          Previous
-        </Button>
-        <Button
-          onClick={nextStep}
-          disabled={loading}
-          className="px-8 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg"
-        >
-          Next Step
-        </Button>
       </div>
     </div>
   );
 
   const renderStep3 = () => (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <User className="w-8 h-8 text-white" />
-        </div>
-        <h3 className="text-lg font-semibold text-slate-800">Personal Information</h3>
-        <p className="text-sm text-slate-600">Enter personal details</p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div>
-          <Label htmlFor="nid" className="text-sm font-medium text-slate-700">
-            National ID (NID) *
-          </Label>
+    <div className="space-y-3">
+      <h2 className="text-lg font-semibold text-gray-800 mb-3">Personal Information</h2>
+      
+      <div className="space-y-1">
+        <label htmlFor="nid" className="text-sm font-medium text-gray-700">National ID / Passport</label>
+        <div className="relative">
+          <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
             id="nid"
             name="nid"
+            type="text"
+            placeholder="Enter NID or Passport"
             value={formData.nid}
             onChange={handleChange}
             disabled={loading}
-            placeholder="1234567890123"
-            className="h-11"
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="nationality" className="text-sm font-medium text-slate-700">
-            Nationality *
-          </Label>
-          <Input
-            id="nationality"
-            name="nationality"
-            value={formData.nationality}
-            onChange={handleChange}
-            disabled={loading}
-            placeholder="Maldivian"
-            className="h-11"
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="permanentAddress" className="text-sm font-medium text-slate-700">
-            Permanent Address *
-          </Label>
-          <Input
-            id="permanentAddress"
-            name="permanentAddress"
-            value={formData.permanentAddress}
-            onChange={handleChange}
-            disabled={loading}
-            placeholder="Hulhumale, Maldives"
-            className="h-11"
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="presentAddress" className="text-sm font-medium text-slate-700">
-            Present Address *
-          </Label>
-          <Input
-            id="presentAddress"
-            name="presentAddress"
-            value={formData.presentAddress}
-            onChange={handleChange}
-            disabled={loading}
-            placeholder="Male, Maldives"
-            className="h-11"
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="emergencyContactName" className="text-sm font-medium text-slate-700">
-            Emergency Contact Name *
-          </Label>
-          <Input
-            id="emergencyContactName"
-            name="emergencyContactName"
-            value={formData.emergencyContactName}
-            onChange={handleChange}
-            disabled={loading}
-            placeholder="Jane Doe"
-            className="h-11"
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="emergencyContactNumber" className="text-sm font-medium text-slate-700">
-            Emergency Contact Number *
-          </Label>
-          <Input
-            id="emergencyContactNumber"
-            name="emergencyContactNumber"
-            value={formData.emergencyContactNumber}
-            onChange={handleChange}
-            disabled={loading}
-            placeholder="+960 123 4567"
-            className="h-11"
+            className="pl-9 h-10 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg text-sm"
+            required
           />
         </div>
       </div>
 
-      <div className="flex justify-between">
-        <Button onClick={prevStep} variant="outline" className="px-8 py-2 border-slate-300 text-slate-700 rounded-lg">
-          Previous
-        </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="px-8 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg flex items-center gap-2"
-        >
-          {loading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Create Employee'}
-        </Button>
+      <div className="space-y-1">
+        <label htmlFor="nationality" className="text-sm font-medium text-gray-700">Nationality</label>
+        <div className="relative">
+          <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            id="nationality"
+            name="nationality"
+            type="text"
+            placeholder="Enter nationality"
+            value={formData.nationality}
+            onChange={handleChange}
+            disabled={loading}
+            className="pl-9 h-10 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg text-sm"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <label htmlFor="permanentAddress" className="text-sm font-medium text-gray-700">Permanent Address</label>
+        <div className="relative">
+          <MapPin className="absolute left-3 top-3 text-gray-400 w-4 h-4" />
+          <textarea
+            id="permanentAddress"
+            name="permanentAddress"
+            placeholder="Enter permanent address"
+            value={formData.permanentAddress}
+            onChange={handleChange}
+            disabled={loading}
+            className="pl-9 p-2 w-full border border-gray-300 rounded-lg focus:border-emerald-500 focus:ring-emerald-500 resize-none h-16 text-sm"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <label htmlFor="presentAddress" className="text-sm font-medium text-gray-700">Present Address</label>
+        <div className="relative">
+          <MapPin className="absolute left-3 top-3 text-gray-400 w-4 h-4" />
+          <textarea
+            id="presentAddress"
+            name="presentAddress"
+            placeholder="Enter present address"
+            value={formData.presentAddress}
+            onChange={handleChange}
+            disabled={loading}
+            className="pl-9 p-2 w-full border border-gray-300 rounded-lg focus:border-emerald-500 focus:ring-emerald-500 resize-none h-16 text-sm"
+            required
+          />
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStep4 = () => (
+    <div className="space-y-3">
+      <h2 className="text-lg font-semibold text-gray-800 mb-3">Emergency Contact</h2>
+      
+      <div className="space-y-1">
+        <label htmlFor="emergencyContactName" className="text-sm font-medium text-gray-700">Emergency Contact Name</label>
+        <div className="relative">
+          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            id="emergencyContactName"
+            name="emergencyContactName"
+            type="text"
+            placeholder="Enter emergency contact name"
+            value={formData.emergencyContactName}
+            onChange={handleChange}
+            disabled={loading}
+            className="pl-9 h-10 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg text-sm"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <label htmlFor="emergencyContactNumber" className="text-sm font-medium text-gray-700">Emergency Contact Number</label>
+        <div className="relative">
+          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            id="emergencyContactNumber"
+            name="emergencyContactNumber"
+            type="tel"
+            placeholder="Enter contact number"
+            value={formData.emergencyContactNumber}
+            onChange={handleChange}
+            disabled={loading}
+            className="pl-9 h-10 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg text-sm"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="bg-emerald-50 p-3 rounded-lg mt-4">
+        <h3 className="font-medium text-emerald-800 mb-2 text-sm">Review Your Information</h3>
+        <div className="text-xs text-emerald-700 space-y-1">
+          <p><strong>Name:</strong> {formData.name}</p>
+          <p><strong>Email:</strong> {formData.email}</p>
+          <p><strong>Role:</strong> {formData.role}</p>
+          <p><strong>Employee ID:</strong> {formData.employeeId}</p>
+          <p><strong>Designation:</strong> {formData.designation}</p>
+        </div>
       </div>
     </div>
   );
@@ -581,38 +594,119 @@ export default function CreateEmployeeForm({ open, onClose, onCreate }: CreateEm
     <>
       <Toaster position="top-right" />
       <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-auto rounded-xl p-6">
-          <DialogHeader>
-            <DialogTitle>Create New Employee</DialogTitle>
-          </DialogHeader>
-
-          {showCropper && imageSrc ? (
-            <div className="relative w-full h-[350px] bg-gray-100 rounded-lg">
-              <Cropper
-                image={imageSrc}
-                crop={crop}
-                zoom={zoom}
-                aspect={1}
-                cropShape="round"
-                showGrid={false}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={handleCropComplete}
-              />
-              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 px-4">
-                <Button onClick={() => setShowCropper(false)} variant="outline">
-                  Cancel
-                </Button>
-                <Button onClick={handleCropConfirm}>Crop & Continue</Button>
+        <DialogContent className="max-w-md w-full rounded-2xl p-0 border-0">
+          <DialogTitle></DialogTitle>
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-white/20">
+            {showCropper && imageSrc ? (
+              <div className="relative w-full h-[350px] bg-gray-100 rounded-lg">
+                <Cropper
+                  image={imageSrc}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  cropShape="round"
+                  showGrid={false}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={handleCropComplete}
+                />
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 px-4">
+                  <Button 
+                    onClick={() => setShowCropper(false)} 
+                    variant="outline"
+                    className="border-emerald-500 text-emerald-600 hover:bg-emerald-50 text-sm h-9 px-4"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleCropConfirm}
+                    className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm h-9 px-4"
+                  >
+                    Crop & Continue
+                  </Button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <>
-              {currentStep === 1 && renderStep1()}
-              {currentStep === 2 && renderStep2()}
-              {currentStep === 3 && renderStep3()}
-            </>
-          )}
+            ) : (
+              <>
+                {/* Header */}
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full mb-3">
+                    <Building2 className="w-6 h-6 text-white" />
+                  </div>
+                  <h1 className="text-2xl font-bold text-gray-800 mb-1">Create New Employee</h1>
+                  <p className="text-sm text-gray-600">Step {currentStep} of {totalSteps}</p>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="mb-6">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs text-gray-600">Progress</span>
+                    <span className="text-xs text-gray-600">{Math.round((currentStep / totalSteps) * 100)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-emerald-500 to-teal-600 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Multi-Step Form */}
+                <div className="space-y-4">
+                  {currentStep === 1 && renderStep1()}
+                  {currentStep === 2 && renderStep2()}
+                  {currentStep === 3 && renderStep3()}
+                  {currentStep === 4 && renderStep4()}
+
+                  {/* Navigation Buttons */}
+                  <div className="flex justify-between pt-4">
+                    {currentStep > 1 && (
+                      <Button
+                        onClick={prevStep}
+                        variant="outline"
+                        className="px-4 py-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 text-sm h-9"
+                        disabled={loading}
+                      >
+                        Previous
+                      </Button>
+                    )}
+                    
+                    {currentStep < totalSteps ? (
+                      <Button
+                        onClick={nextStep}
+                        className="ml-auto px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm h-9"
+                        disabled={loading}
+                      >
+                        Next
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleSubmit}
+                        className="ml-auto px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-sm h-9"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <div className="flex items-center">
+                            <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                            Creating...
+                          </div>
+                        ) : (
+                          'Create Employee'
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="text-center text-xs text-gray-600">
+                    All fields marked with * are required
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </>
