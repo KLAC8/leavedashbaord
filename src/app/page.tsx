@@ -61,12 +61,6 @@ export default function HomePage() {
           <Building2 className="w-96 h-96 text-gray-400" />
         </div>
       </div>
-
-      {/* Animated background blobs */}
-      <div className="absolute top-10 left-10 w-20 h-20 bg-emerald-200 rounded-full opacity-20 animate-pulse"></div>
-      <div className="absolute bottom-10 right-10 w-32 h-32 bg-teal-200 rounded-full opacity-20 animate-pulse delay-1000"></div>
-      <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-cyan-200 rounded-full opacity-20 animate-pulse delay-500"></div>
-
       {/* Sidebar - Fixed to full height */}
       <div className="flex-shrink-0">
         <Sidebar
