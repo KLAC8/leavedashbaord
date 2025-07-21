@@ -60,12 +60,21 @@ export default function EmployeeHomePage() {
                     <h2 className="text-2xl font-bold text-gray-800">Welcome to Your Dashboard</h2>
                     <p className="text-gray-600">Manage leave requests and employee information</p>
                   </div>
-                  <Link
+                 <div className='flex gap-2'>
+                   <Link
                     href="/request-leave"
                     className="inline-block bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow"
                   >
                     Request Leave
                   </Link>
+                   <Link
+                    href="/settings"
+                    className="inline-block bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow"
+                  >
+                    settings
+                  </Link>
+
+                 </div>
                 </div>
               </div>
             </div>
