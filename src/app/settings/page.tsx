@@ -435,7 +435,7 @@ export default function SettingsPage() {
         {/* Password Section Header */}
         <div className="pt-4 border-t border-gray-200">
           <h3 className="text-lg font-medium text-gray-800 mb-2">Change Password</h3>
-          <p className="text-sm text-gray-500 mb-4">Leave blank if you don't want to change your password</p>
+          <p className="text-sm text-gray-500 mb-4">Leave blank if you don`&apos;`t want to change your password</p>
         </div>
 
         {/* Current Password */}
