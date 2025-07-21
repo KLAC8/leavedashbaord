@@ -66,7 +66,7 @@ export default function SettingsPage() {
         setEmail(data.email || '');
         setPreview(data.image || null);
       })
-      .catch(err => {
+      .catch(() => {
         toast.error('Failed to load profile data');
       });
   }, []);
