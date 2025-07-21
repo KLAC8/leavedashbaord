@@ -11,11 +11,10 @@ import {
   UserPlus,
   Shield,
   X,
-  Database,
   LogOut,
   Building2,
   Box,
-  UserRound,
+  UserRoundPenIcon,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -92,7 +91,7 @@ export default function Sidebar({
       ? { href: '/login', icon: LogIn, label: 'Login' }
       : { href: '#logout', icon: LogOut, label: 'Logout', onClick: handleLogout },
     { href: '/register', icon: UserPlus, label: 'Register' },
-    { href: '/employeedatabase', icon: UserRound, label: 'Employee Data' },
+    { href: '/employeedatabase', icon: UserRoundPenIcon, label: 'Employee Data' },
     { href: 'https://inventory-mu-one.vercel.app/dashboard', icon: Box, label: 'Inventory', external: true },
   ];
 
