@@ -345,16 +345,21 @@ export default function SettingsPage() {
           showToast('error', 'Update failed', result.error || 'An unexpected error occurred');
         }
       }
-    } catch (err: any) {
-      toast.dismiss(loadingToastId);
-      console.error('Settings update error:', err);
-      
-      if (err.message?.includes('network') || err.message?.includes('fetch')) {
-        showToast('error', 'Network error', 'Please check your internet connection and try again');
-      } else {
-        showToast('error', 'Something went wrong', 'An unexpected error occurred. Please try again.');
-      }
-    } finally {
+   } catch (err: unknown) {
+  toast.dismiss(loadingToastId);
+  console.error('Settings update error:', err);
+
+  if (err instanceof Error) {
+    if (err.message?.includes('network') || err.message?.includes('fetch')) {
+      showToast('error', 'Network error', 'Please check your internet connection and try again');
+    } else {
+      showToast('error', 'Something went wrong', 'An unexpected error occurred. Please try again.');
+    }
+  } else {
+    showToast('error', 'Something went wrong', 'An unexpected error occurred. Please try again.');
+  }
+}
+    finally {
       setLoading(false);
     }
   };
