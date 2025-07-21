@@ -14,6 +14,8 @@ import {
   Database,
   LogOut,
   Building2,
+  Box,
+  UserRound,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -90,7 +92,8 @@ export default function Sidebar({
       ? { href: '/login', icon: LogIn, label: 'Login' }
       : { href: '#logout', icon: LogOut, label: 'Logout', onClick: handleLogout },
     { href: '/register', icon: UserPlus, label: 'Register' },
-    { href: 'https://inventory-mu-one.vercel.app/dashboard', icon: Database, label: 'Inventory', external: true },
+    { href: '/employeedatabase', icon: UserRound, label: 'Employee Data' },
+    { href: 'https://inventory-mu-one.vercel.app/dashboard', icon: Box, label: 'Inventory', external: true },
   ];
 
   return (

@@ -122,7 +122,7 @@ export default function HomePage() {
                 <Building2 className="w-4 h-4 text-white" />
               </div>
               <p className="text-sm text-white">
-                &copy; {new Date().getFullYear()} Leave Management Portal. All rights reserved.
+                &copy; {new Date().getFullYear()} KLAC Management Portal. All rights reserved.
               </p>
             </div>
             <div className="flex items-center gap-6 text-sm text-emerald-100">

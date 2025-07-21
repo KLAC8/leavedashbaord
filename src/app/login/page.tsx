@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
   const router = useRouter();
 
   async function handleLogin(e: React.FormEvent) {
@@ -31,7 +32,6 @@ export default function LoginPage() {
     if (res?.error) {
       setError('Invalid email or password');
     } else {
-      // Successful login: just redirect to /admin
       router.push('/');
     }
   }
@@ -44,12 +44,12 @@ export default function LoginPage() {
           <Building2 className="w-96 h-96 text-gray-400" />
         </div>
       </div>
-      
+
       {/* Animated background elements */}
       <div className="absolute top-10 left-10 w-20 h-20 bg-emerald-200 rounded-full opacity-20 animate-pulse"></div>
       <div className="absolute bottom-10 right-10 w-32 h-32 bg-teal-200 rounded-full opacity-20 animate-pulse delay-1000"></div>
       <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-cyan-200 rounded-full opacity-20 animate-pulse delay-500"></div>
-      
+
       {/* Login Form */}
       <div className="relative z-10 w-full max-w-md">
         <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border border-white/20">
@@ -70,7 +70,7 @@ export default function LoginPage() {
           )}
 
           {/* Login Form */}
-          <div className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-6">
             {/* Email Field */}
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium text-gray-700">
@@ -110,6 +110,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -118,14 +119,18 @@ export default function LoginPage() {
 
             {/* Forgot Password Link */}
             <div className="text-right">
-              <a href="#" className="text-sm text-emerald-600 hover:text-emerald-800 transition-colors">
+              <button
+                type="button"
+                onClick={() => setShowForgotModal(true)}
+                className="text-sm text-emerald-600 hover:text-emerald-800 transition-colors cursor-pointer"
+              >
                 Forgot password?
-              </a>
+              </button>
             </div>
 
             {/* Submit Button */}
             <Button
-              onClick={handleLogin}
+              type="submit"
               className="w-full h-12 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
               disabled={loading}
             >
@@ -138,7 +143,7 @@ export default function LoginPage() {
                 'Sign In'
               )}
             </Button>
-          </div>
+          </form>
 
           {/* Divider */}
           <div className="mt-8 pt-6 border-t border-gray-200">
@@ -149,10 +154,28 @@ export default function LoginPage() {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-6 text-sm text-gray-500">
-          © 2025 Your Company. All rights reserved.
-        </div>
+        <div className="text-center mt-6 text-sm text-gray-500">© 2025 KLAC. All rights reserved.</div>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 bg-opacity-50 p-4">
+          <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6 relative">
+            <h2 className="text-xl font-semibold mb-4">Password Recovery</h2>
+            <p className="mb-4 text-gray-700">
+              If you forgot your password, please contact your company admin to change it.
+            </p>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowForgotModal(false)}
+                className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:bg-emerald-600 text-white rounded-lg transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
