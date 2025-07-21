@@ -8,6 +8,7 @@ import { Calendar, ChevronLeft, ChevronRight, Building2 } from 'lucide-react';
 import EmployeeProfile from '@/components/ui/EmployeeProfile';
 import LeaveBalance from '@/components/ui/LeaveBalance';
 import Link from 'next/link';
+import Loading from './loading';
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -21,7 +22,9 @@ export default function HomePage() {
     if (!session) router.push('/login');
   }, [session, status, router]);
 
-  if (status === 'loading') return <div>Loading...</div>;
+  if (status === 'loading') return <div>
+    <Loading />
+  </div>;
   if (!session) return null;
 
   const role = session.user?.role;
