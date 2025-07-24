@@ -6,6 +6,34 @@ import LeaveRequest from '@/models/LeaveRequest';
 import { connectDB } from '@/lib/db'; 
 import mongoose from 'mongoose';
 
+// Define interfaces for better type safety
+interface LeaveUpdateData {
+  status?: 'approved' | 'rejected' | 'cancelled';
+  approvedBy?: string;
+  approvedAt?: Date;
+  rejectedBy?: string;
+  rejectedAt?: Date;
+  $push?: {
+    comments: {
+      userId: string;
+      text: string;
+      role: string;
+      createdAt: Date;
+    };
+  };
+}
+
+interface LeaveEditData {
+  leaveType?: string;
+  from?: Date;
+  to?: Date;
+  reason?: string;
+  replacement?: string;
+  emergencyContact?: string;
+  isHalfDay?: boolean;
+  halfDayPeriod?: string;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -145,7 +173,7 @@ export async function PATCH(
         );
       }
 
-      let updateData: any = {
+      const updateData: LeaveUpdateData = {
         status: action === 'approve' ? 'approved' : 'rejected'
       };
 
@@ -262,7 +290,7 @@ export async function PATCH(
 
       const { leaveType, from, to, reason: updateReason, replacement, emergencyContact, isHalfDay, halfDayPeriod } = body;
 
-      const updateData: any = {};
+      const updateData: LeaveEditData = {};
       if (leaveType) updateData.leaveType = leaveType;
       if (from) updateData.from = new Date(from);
       if (to) updateData.to = new Date(to);

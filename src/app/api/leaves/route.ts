@@ -4,8 +4,15 @@ import { connectDB } from '@/lib/db';
 import LeaveRequest from '@/models/LeaveRequest';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import Employee from '@/models/Employee'; // if you want to validate employeeId exists
+import Employee from '@/models/Employee';
 import mongoose from 'mongoose';
+
+// Define the filter type interface
+interface LeaveFilter {
+  employeeId?: string;
+  leaveType?: string;
+  status?: string;
+}
 
 // GET /api/leaves?type=annual-leave
 export async function GET(req: NextRequest) {
@@ -23,7 +30,7 @@ export async function GET(req: NextRequest) {
     const type = req.nextUrl.searchParams.get('type');
     const status = req.nextUrl.searchParams.get('status');
 
-    const filter: any = {
+    const filter: LeaveFilter = {
       employeeId: session.user.id // Only get current user's leaves for employees
     };
 
@@ -35,7 +42,7 @@ export async function GET(req: NextRequest) {
 
     if (type && type !== 'all') {
       // Map frontend type to backend leaveType
-      const typeMapping: { [key: string]: string } = {
+      const typeMapping: Record<string, string> = {
         'annual-leave': 'annual',
         'sick-leave': 'sick',
         'fr-leave': 'fr',
@@ -66,7 +73,6 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-
 
 function isHoliday(date: Date, publicHolidays: string[]): boolean {
   const day = date.getDay(); // 0 = Sunday, 5 = Friday, 6 = Saturday

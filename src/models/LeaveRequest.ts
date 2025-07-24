@@ -1,5 +1,12 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 
+// Define the interface for leave statistics
+export interface ILeaveStats {
+  _id: string;
+  totalDays: number;
+  count: number;
+}
+
 // Define the interface for the leave request document
 export interface ILeaveRequest {
   employeeId: mongoose.Types.ObjectId;
@@ -49,7 +56,7 @@ export interface ILeaveRequestMethods {
 
 // Define static methods interface
 export interface ILeaveRequestStatics {
-  getLeaveStats(employeeId: mongoose.Types.ObjectId, year: number): Promise<any[]>;
+  getLeaveStats(employeeId: mongoose.Types.ObjectId, year: number): Promise<ILeaveStats[]>;
 }
 
 // Combined document interface
@@ -217,7 +224,7 @@ LeaveRequestSchema.statics.getLeaveStats = function(
   this: ILeaveRequestModel,
   employeeId: mongoose.Types.ObjectId, 
   year: number
-): Promise<any[]> {
+): Promise<ILeaveStats[]> {
   const startDate = new Date(year, 0, 1);
   const endDate = new Date(year, 11, 31);
   

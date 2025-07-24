@@ -11,7 +11,6 @@ import {
   ArrowLeft,
   Plus,
   Filter,
-  Eye,
   CheckCircle,
   XCircle,
   Clock3,
@@ -46,12 +45,15 @@ interface Employee {
   sickLeaveTaken: number;
 }
 
+// Define filter types
+type FilterType = 'all' | 'pending' | 'approved' | 'rejected';
+
 export default function LeaveDetails() {
   const { data: session, status } = useSession();
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [filter, setFilter] = useState<FilterType>('all');
   const [showNewLeaveForm, setShowNewLeaveForm] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -83,8 +85,8 @@ export default function LeaveDetails() {
         if (leaveRes.ok) {
           setLeaveRequests(leaveData.leaves);
         }
-      } catch (error) {
-        console.error('Failed to fetch data', error);
+      } catch (fetchError) {
+        console.error('Failed to fetch data', fetchError);
       } finally {
         setLoading(false);
       }
@@ -248,7 +250,7 @@ export default function LeaveDetails() {
                   <Filter className="w-4 h-4 text-gray-600" />
                   <select 
                     value={filter}
-                    onChange={(e) => setFilter(e.target.value as any)}
+                    onChange={(e) => setFilter(e.target.value as FilterType)}
                     className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
                     <option value="all">All Requests</option>
@@ -458,7 +460,7 @@ export default function LeaveDetails() {
                   <Filter className="w-4 h-4 text-gray-600" />
                   <select 
                     value={filter}
-                    onChange={(e) => setFilter(e.target.value as any)}
+                    onChange={(e) => setFilter(e.target.value as FilterType)}
                     className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
                     <option value="all">All Requests</option>
@@ -569,10 +571,34 @@ export default function LeaveDetails() {
   );
 }
 
+// Define types for the form component
+interface LeaveRequestFormProps {
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+type LeaveType = 'annual' | 'sick' | 'maternity' | 'paternity' | 'nopay' | 'fr';
+type HalfDayPeriod = 'morning' | 'afternoon';
+type Priority = 'low' | 'medium' | 'high' | 'urgent';
+
+interface FormData {
+  leaveType: LeaveType;
+  from: string;
+  to: string;
+  reason: string;
+  replacement: string;
+  emergencyContact: string;
+  attachmentUrl: string;
+  doctorCertificate: string;
+  isHalfDay: boolean;
+  halfDayPeriod: HalfDayPeriod;
+  priority: Priority;
+}
+
 // Leave Request Form Component
-function LeaveRequestForm({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+function LeaveRequestForm({ onClose, onSuccess }: LeaveRequestFormProps) {
   const { data: session } = useSession();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     leaveType: 'annual',
     from: '',
     to: '',
@@ -582,8 +608,8 @@ function LeaveRequestForm({ onClose, onSuccess }: { onClose: () => void; onSucce
     attachmentUrl: '',
     doctorCertificate: '',
     isHalfDay: false,
-    halfDayPeriod: 'morning' as 'morning' | 'afternoon',
-    priority: 'medium' as 'low' | 'medium' | 'high' | 'urgent'
+    halfDayPeriod: 'morning',
+    priority: 'medium'
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -626,7 +652,8 @@ function LeaveRequestForm({ onClose, onSuccess }: { onClose: () => void; onSucce
       } else {
         setError(data.error || 'Failed to submit leave request');
       }
-    } catch (error) {
+    } catch (submitError) {
+      console.error('Submit error:', submitError);
       setError('An error occurred while submitting the request');
     } finally {
       setLoading(false);
