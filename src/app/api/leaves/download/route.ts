@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import LeaveRequest from '@/models/LeaveRequest';
+import LeaveRequest, { ILeaveRequestDocument } from '@/models/LeaveRequest';
 import { connectDB } from '@/lib/db';
 import PDFDocument from 'pdfkit';
 import * as XLSX from 'xlsx';
@@ -15,6 +15,27 @@ interface LeaveFilter {
     $gte?: Date;
     $lte?: Date;
   };
+}
+
+interface PopulatedUser {
+  _id: string;
+  name: string;
+  role?: string;
+}
+
+interface PopulatedLeaveRequest extends Omit<ILeaveRequestDocument, 'employeeId' | 'approvedBy' | 'rejectedBy'> {
+  employeeId: PopulatedUser;
+  approvedBy?: PopulatedUser;
+  rejectedBy?: PopulatedUser;
+}
+
+// Helper functions to safely access populated fields
+function getEmployeeName(leave: PopulatedLeaveRequest): string {
+  return leave.employeeName || leave.employeeId?.name || 'N/A';
+}
+
+function getApproverName(approver?: PopulatedUser): string {
+  return approver?.name || 'N/A';
 }
 
 export async function GET(request: NextRequest) {
@@ -107,12 +128,15 @@ export async function GET(request: NextRequest) {
       .populate('rejectedBy', 'name role')
       .sort({ createdAt: -1 });
 
+    // Type the result properly
+    const typedLeaves = leaves as unknown as PopulatedLeaveRequest[];
+
     if (format === 'pdf') {
-      return generatePDFReport(leaves);
+      return generatePDFReport(typedLeaves);
     } else if (format === 'excel') {
-      return generateExcelReport(leaves);
+      return generateExcelReport(typedLeaves);
     } else if (format === 'csv') {
-      return generateCSVReport(leaves);
+      return generateCSVReport(typedLeaves);
     } else {
       return NextResponse.json(
         { error: 'Invalid format specified' },
@@ -129,7 +153,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function generatePDFReport(leaves: any[]): Promise<Response> {
+async function generatePDFReport(leaves: PopulatedLeaveRequest[]): Promise<Response> {
   const doc = new PDFDocument({ margin: 50 });
   const chunks: Buffer[] = [];
 
@@ -164,7 +188,7 @@ async function generatePDFReport(leaves: any[]): Promise<Response> {
     }
 
     doc.fontSize(12).font('Helvetica-Bold')
-       .text(`${index + 1}. ${leave.employeeName || 'N/A'} - ${leave.leaveType?.toUpperCase()}`);
+       .text(`${index + 1}. ${getEmployeeName(leave)} - ${leave.leaveType?.toUpperCase()}`);
     doc.fontSize(10).font('Helvetica')
        .text(`   Period: ${new Date(leave.from).toLocaleDateString()} to ${new Date(leave.to).toLocaleDateString()}`)
        .text(`   Duration: ${leave.totalDays} days | Status: ${leave.status.toUpperCase()}`)
@@ -185,27 +209,27 @@ async function generatePDFReport(leaves: any[]): Promise<Response> {
   });
 }
 
-async function generateExcelReport(leaves: any[]): Promise<Response> {
+async function generateExcelReport(leaves: PopulatedLeaveRequest[]): Promise<Response> {
   const workbook = XLSX.utils.book_new();
   
   // Prepare data for Excel
   const data = leaves.map(leave => ({
-    'Employee Name': leave.employeeName || 'N/A',
+    'Employee Name': getEmployeeName(leave),
     'Leave Type': leave.leaveType?.toUpperCase(),
     'Start Date': new Date(leave.from).toLocaleDateString(),
     'End Date': new Date(leave.to).toLocaleDateString(),
     'Duration (Days)': leave.totalDays,
     'Status': leave.status.toUpperCase(),
-    'Priority': (leave.priority || 'medium').toUpperCase(),
+    'Priority': leave.priority.toUpperCase(),
     'Half Day': leave.isHalfDay ? 'Yes' : 'No',
     'Half Day Period': leave.halfDayPeriod || 'N/A',
     'Reason': leave.reason,
     'Replacement': leave.replacement || 'N/A',
     'Emergency Contact': leave.emergencyContact || 'N/A',
     'Requested Date': new Date(leave.createdAt).toLocaleDateString(),
-    'Approved By': leave.approvedBy?.name || 'N/A',
+    'Approved By': getApproverName(leave.approvedBy),
     'Approved Date': leave.approvedAt ? new Date(leave.approvedAt).toLocaleDateString() : 'N/A',
-    'Rejected By': leave.rejectedBy?.name || 'N/A',
+    'Rejected By': getApproverName(leave.rejectedBy),
     'Rejected Date': leave.rejectedAt ? new Date(leave.rejectedAt).toLocaleDateString() : 'N/A'
   }));
 
@@ -230,7 +254,7 @@ async function generateExcelReport(leaves: any[]): Promise<Response> {
   });
 }
 
-async function generateCSVReport(leaves: any[]): Promise<Response> {
+async function generateCSVReport(leaves: PopulatedLeaveRequest[]): Promise<Response> {
   const headers = [
     'Employee Name',
     'Leave Type',
@@ -252,22 +276,22 @@ async function generateCSVReport(leaves: any[]): Promise<Response> {
   ];
 
   const csvData = leaves.map(leave => [
-    leave.employeeName || 'N/A',
+    getEmployeeName(leave),
     leave.leaveType?.toUpperCase(),
     new Date(leave.from).toLocaleDateString(),
     new Date(leave.to).toLocaleDateString(),
     leave.totalDays,
     leave.status.toUpperCase(),
-    (leave.priority || 'medium').toUpperCase(),
+    leave.priority.toUpperCase(),
     leave.isHalfDay ? 'Yes' : 'No',
     leave.halfDayPeriod || 'N/A',
     `"${leave.reason.replace(/"/g, '""')}"`, // Escape quotes
     leave.replacement || 'N/A',
     leave.emergencyContact || 'N/A',
     new Date(leave.createdAt).toLocaleDateString(),
-    leave.approvedBy?.name || 'N/A',
+    getApproverName(leave.approvedBy),
     leave.approvedAt ? new Date(leave.approvedAt).toLocaleDateString() : 'N/A',
-    leave.rejectedBy?.name || 'N/A',
+    getApproverName(leave.rejectedBy),
     leave.rejectedAt ? new Date(leave.rejectedAt).toLocaleDateString() : 'N/A'
   ]);
 

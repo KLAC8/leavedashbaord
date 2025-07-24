@@ -4,8 +4,6 @@
 import { useState } from 'react';
 import { 
   X, 
-  Edit, 
-  Trash2, 
   Calendar, 
   Clock, 
   User, 
@@ -19,30 +17,9 @@ import {
   AlertTriangle
 } from 'lucide-react';
 
-interface LeaveRequest {
-  id: string;
-  type: string;
-  startDate: string;
-  endDate: string;
-  days: number;
-  reason: string;
-  status: 'pending' | 'approved' | 'rejected';
-  requestedDate: string;
-  approvedBy?: string;
-  approvedDate?: string;
-  rejectedBy?: string;
-  rejectedDate?: string;
-  rejectionReason?: string;
-  priority?: 'low' | 'medium' | 'high' | 'urgent';
-  replacement?: string;
-  emergencyContact?: string;
-  isHalfDay?: boolean;
-  halfDayPeriod?: 'morning' | 'afternoon';
-  comments?: any[];
-  employeeName?: string;
-  attachmentUrl?: string;
-  doctorCertificate?: string;
-}
+import { LeaveRequest } from '@/types/leave';
+
+// Define a proper type for comments
 
 interface LeaveActionsModalProps {
   leave: LeaveRequest;
@@ -430,7 +407,8 @@ export function EditLeaveModal({ leave, onClose, onUpdate }: LeaveActionsModalPr
       } else {
         setError(data.error || 'Failed to update leave request');
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Update error:', error);
       setError('An error occurred while updating the request');
     } finally {
       setLoading(false);
@@ -701,7 +679,8 @@ export function DeleteLeaveModal({ leave, onClose, onUpdate }: LeaveActionsModal
       } else {
         setError(data.error || 'Failed to delete leave request');
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Delete error:', error);
       setError('An error occurred while deleting the request');
     } finally {
       setLoading(false);

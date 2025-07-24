@@ -29,27 +29,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 
-interface LeaveRequest {
-  id: string;
-  type: string;
-  startDate: string;
-  endDate: string;
-  days: number;
-  reason: string;
-  status: 'pending' | 'approved' | 'rejected';
-  requestedDate: string;
-  approvedBy?: string;
-  approvedDate?: string;
-  rejectedBy?: string;
-  rejectedDate?: string;
-  rejectionReason?: string;
-  priority?: 'low' | 'medium' | 'high' | 'urgent';
-  replacement?: string;
-  emergencyContact?: string;
-  isHalfDay?: boolean;
-  halfDayPeriod?: 'morning' | 'afternoon';
-  comments?: any[];
-}
+import { LeaveRequest } from '@/types/leave';
 
 interface Employee {
   annualLeaveBalance: number;
@@ -58,6 +38,15 @@ interface Employee {
   frLeaveTaken: number;
   sickLeaveBalance: number;
   sickLeaveTaken: number;
+}
+
+interface Comment {
+  id: string;
+  text: string;
+  userId: {
+    name: string;
+  } | null;
+  createdAt: string;
 }
 
 // Define filter types
@@ -1169,13 +1158,33 @@ interface LeaveDetailsModalProps {
 }
 
 function LeaveDetailsModal({ leave, onClose }: LeaveDetailsModalProps) {
-  function getStatusColor(status: string) {
-    throw new Error('Function not implemented.');
-  }
+    const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'rejected':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
 
-  function getPriorityColor(priority: string) {
-    throw new Error('Function not implemented.');
-  }
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'urgent':
+        return 'bg-red-100 text-red-800';
+      case 'high':
+        return 'bg-orange-100 text-orange-800';
+      case 'medium':
+        return 'bg-blue-100 text-blue-800';
+      case 'low':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
