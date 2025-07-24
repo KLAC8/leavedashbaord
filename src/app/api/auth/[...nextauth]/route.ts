@@ -6,9 +6,6 @@ import bcrypt from "bcrypt";
 import { JWT } from "next-auth/jwt";
 
 const authOptions: AuthOptions = {
-  // Remove MongoDB adapter when using JWT strategy
-  // adapter: MongoDBAdapter(clientPromise), // Comment this out
-  
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -54,7 +51,6 @@ const authOptions: AuthOptions = {
   
   callbacks: {
     async jwt({ token, user }: { token: JWT; user?: User }) {
-      // When user signs in, add role to token
       if (user) {
         console.log('[Auth] Adding user to token:', user);
         token.role = user.role;
@@ -64,7 +60,6 @@ const authOptions: AuthOptions = {
     },
     
     async session({ session, token }: { session: Session; token: JWT }) {
-      // Send properties to the client
       if (token) {
         console.log('[Auth] Creating session from token:', token);
         session.user.id = token.id as string;
@@ -79,15 +74,12 @@ const authOptions: AuthOptions = {
     maxAge: 24 * 60 * 60, // 24 hours
   },
   
-  jwt: {
-    maxAge: 24 * 60 * 60, // 24 hours
-  },
-  
   pages: {
     signIn: "/login",
-    error: "/login", // Redirect to login on error
+    error: "/login",
   },
   
+  // Enable debug only in development
   debug: process.env.NODE_ENV === "development",
 };
 

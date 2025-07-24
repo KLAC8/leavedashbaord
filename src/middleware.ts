@@ -10,38 +10,100 @@ export async function middleware(request: NextRequest) {
   const pathname = url.pathname;
 
   console.log('[Middleware] Running on:', pathname);
+  console.log('[Middleware] Host:', request.headers.get('host'));
+  console.log('[Middleware] Environment check - NEXTAUTH_SECRET exists:', !!process.env.NEXTAUTH_SECRET);
 
-  // Get session token
-  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
-
-  // Not logged in? Redirect to login
-  if (!token) {
-    console.log('[Middleware] No token found. Redirecting to /login');
-    return NextResponse.redirect(new URL('/login', url));
+  // Skip middleware for login page, API routes, and static files
+  if (
+    pathname === '/login' || 
+    pathname.startsWith('/api/') || 
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/favicon')
+  ) {
+    console.log('[Middleware] Skipping middleware for:', pathname);
+    return NextResponse.next();
   }
 
-  const role = token.role;
-  console.log('[Middleware] User role:', role);
+  try {
+    // Get session token with Vercel-specific configuration
+    const token = await getToken({ 
+      req: request, 
+      secret: process.env.NEXTAUTH_SECRET,
+      // Let NextAuth handle cookie name detection automatically
+      secureCookie: process.env.NODE_ENV === 'production',
+      cookieName: process.env.NODE_ENV === 'production' 
+        ? '__Secure-next-auth.session-token'
+        : 'next-auth.session-token'
+    });
 
-  // Check if this is a protected path
-  const isProtected = PROTECTED_PATHS.some((protectedPath) =>
-    pathname === protectedPath || pathname.startsWith(`${protectedPath}/`)
-  );
+    console.log('[Middleware] Token retrieval result:', {
+      hasToken: !!token,
+      tokenRole: token?.role,
+      tokenEmail: token?.email,
+      cookies: request.cookies.getAll().map(c => ({ name: c.name, hasValue: !!c.value }))
+    });
 
-  if (isProtected) {
-    console.log(`[Middleware] ${pathname} is a protected path`);
-    if (role === 'employee') {
-      console.log('[Middleware] Blocked: employee not allowed. Redirecting to /unauthorized');
-      return NextResponse.redirect(new URL('/unauthorized', url));
-    } else {
-      console.log('[Middleware] Access granted to admin/md');
+    // Check if this is a protected path
+    const isProtected = PROTECTED_PATHS.some((protectedPath) =>
+      pathname === protectedPath || pathname.startsWith(`${protectedPath}/`)
+    );
+
+    if (isProtected) {
+      console.log(`[Middleware] ${pathname} is a protected path`);
+      
+      // Not logged in? Redirect to login
+      if (!token) {
+        console.log('[Middleware] No token found. Redirecting to /login');
+        const loginUrl = new URL('/login', url);
+        loginUrl.searchParams.set('callbackUrl', pathname);
+        return NextResponse.redirect(loginUrl);
+      }
+
+      const role = token.role as string;
+      console.log('[Middleware] User role:', role);
+
+      // Check role permissions
+      if (role === 'employee') {
+        console.log('[Middleware] Blocked: employee not allowed. Redirecting to /unauthorized');
+        return NextResponse.redirect(new URL('/unauthorized', url));
+      } else if (role === 'admin' || role === 'md') {
+        console.log('[Middleware] Access granted to', role);
+        return NextResponse.next();
+      } else {
+        console.log('[Middleware] Unknown role:', role, 'Redirecting to /unauthorized');
+        return NextResponse.redirect(new URL('/unauthorized', url));
+      }
     }
-  }
 
-  return NextResponse.next();
+    console.log('[Middleware] Path not protected, allowing access');
+    return NextResponse.next();
+
+  } catch (error) {
+    console.error('[Middleware] Error getting token:', error);
+    
+    // Only redirect to login for protected paths on error
+    const isProtected = PROTECTED_PATHS.some(p => pathname === p || pathname.startsWith(`${p}/`));
+    if (isProtected) {
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    
+    return NextResponse.next();
+  }
 }
 
-// Run middleware only on these routes
+// More specific matcher to avoid conflicts
 export const config = {
-  matcher: ['/register', '/admin/:path*', '/inventory/:path*', '/employeedatabase/:path*'],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - login (login page)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|login|unauthorized).*)',
+  ],
 };

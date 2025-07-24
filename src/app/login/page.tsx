@@ -38,11 +38,13 @@ export default function LoginPage() {
 
     try {
       console.log('[Login] Attempting login for:', email);
+      console.log('[Login] Callback URL:', callbackUrl);
       
       const res = await signIn('credentials', {
         redirect: false,
         email,
         password,
+        callbackUrl,
       });
 
       console.log('[Login] SignIn response:', res);
@@ -53,11 +55,12 @@ export default function LoginPage() {
       } else if (res?.ok) {
         console.log('[Login] Success, redirecting to:', callbackUrl);
         
-        // Wait a moment for session to be established
-        setTimeout(() => {
+        // For Vercel, use window.location for more reliable redirects
+        if (typeof window !== 'undefined') {
+          window.location.href = callbackUrl;
+        } else {
           router.push(callbackUrl);
-          router.refresh(); // Force a refresh to update middleware
-        }, 100);
+        }
       }
     } catch (error) {
       console.error('[Login] Login error:', error);
