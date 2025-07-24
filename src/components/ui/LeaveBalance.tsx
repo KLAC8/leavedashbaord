@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Calendar, 
   Clock, 
   Heart,
-  Briefcase
+  Briefcase,
+  ChevronRight
 } from 'lucide-react';
 
 interface Employee {
@@ -21,6 +23,7 @@ interface Employee {
 export default function LeaveBalance() {
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchEmployee = async () => {
@@ -41,6 +44,10 @@ export default function LeaveBalance() {
 
     fetchEmployee();
   }, []);
+
+  const handleLeaveTypeClick = (leaveType: string) => {
+    router.push(`/leave-details?type=${encodeURIComponent(leaveType.toLowerCase().replace(' ', '-'))}`);
+  };
 
   if (loading) {
     return (
@@ -125,15 +132,22 @@ export default function LeaveBalance() {
           const IconComponent = leave.icon;
           
           return (
-            <div key={index} className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-100 hover:shadow-md transition-all duration-200">
+            <div 
+              key={index} 
+              className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-100 hover:shadow-md hover:scale-[1.02] transition-all duration-200 cursor-pointer group"
+              onClick={() => handleLeaveTypeClick(leave.name)}
+            >
               <div className="flex items-center gap-3 mb-4">
                 <div className={`w-10 h-10 bg-gradient-to-br ${leave.color} rounded-xl flex items-center justify-center`}>
                   <IconComponent className="w-5 h-5 text-white" />
                 </div>
                 <h4 className="font-semibold text-gray-800 flex-1">{leave.name}</h4>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-emerald-600">{leave.taken}</div>
-                  <div className="text-xs text-gray-600">/ {leave.balance}</div>
+                <div className="text-right flex items-center gap-2">
+                  <div>
+                    <div className="text-lg font-bold text-emerald-600">{leave.taken}</div>
+                    <div className="text-xs text-gray-600">/ {leave.balance}</div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-emerald-600 transition-colors" />
                 </div>
               </div>
               
