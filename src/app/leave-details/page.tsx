@@ -40,15 +40,6 @@ interface Employee {
   sickLeaveTaken: number;
 }
 
-interface Comment {
-  id: string;
-  text: string;
-  userId: {
-    name: string;
-  } | null;
-  createdAt: string;
-}
-
 // Define filter types
 type FilterType = 'all' | 'pending' | 'approved' | 'rejected';
 
