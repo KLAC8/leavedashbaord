@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { signIn, getSession } from 'next-auth/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, Mail, Lock, Building2 } from 'lucide-react';
@@ -14,25 +14,56 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
+  
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/';
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const session = await getSession();
+      if (session) {
+        console.log('[Login] User already logged in, redirecting to:', callbackUrl);
+        router.push(callbackUrl);
+      }
+    };
+    checkSession();
+  }, [callbackUrl, router]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    const res = await signIn('credentials', {
-      redirect: false,
-      email,
-      password,
-    });
+    try {
+      console.log('[Login] Attempting login for:', email);
+      
+      const res = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+      });
 
-    setLoading(false);
+      console.log('[Login] SignIn response:', res);
 
-    if (res?.error) {
-      setError('Invalid email or password');
-    } else {
-      router.push('/');
+      if (res?.error) {
+        console.log('[Login] Error:', res.error);
+        setError('Invalid email or password');
+      } else if (res?.ok) {
+        console.log('[Login] Success, redirecting to:', callbackUrl);
+        
+        // Wait a moment for session to be established
+        setTimeout(() => {
+          router.push(callbackUrl);
+          router.refresh(); // Force a refresh to update middleware
+        }, 100);
+      }
+    } catch (error) {
+      console.error('[Login] Login error:', error);
+      setError('An error occurred during login');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -60,6 +91,11 @@ export default function LoginPage() {
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
             <p className="text-gray-600">Sign in to your account</p>
+            {callbackUrl !== '/' && (
+              <p className="text-sm text-emerald-600 mt-2">
+                You'll be redirected after login
+              </p>
+            )}
           </div>
 
           {/* Error Message */}
@@ -86,6 +122,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 h-12 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg"
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -105,12 +142,14 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10 h-12 border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 rounded-lg"
                   required
+                  disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  disabled={loading}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -123,6 +162,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => setShowForgotModal(true)}
                 className="text-sm text-emerald-600 hover:text-emerald-800 transition-colors cursor-pointer"
+                disabled={loading}
               >
                 Forgot password?
               </button>

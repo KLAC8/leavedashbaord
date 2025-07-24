@@ -1,14 +1,14 @@
 import NextAuth, { AuthOptions, Session, User, SessionStrategy } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
-import clientPromise from "@/lib/mongodb";
 import { connectDB } from "@/lib/db";
 import Employee, { IEmployee } from "@/models/Employee";
 import bcrypt from "bcrypt";
 import { JWT } from "next-auth/jwt";
 
 const authOptions: AuthOptions = {
-  adapter: MongoDBAdapter(clientPromise),
+  // Remove MongoDB adapter when using JWT strategy
+  // adapter: MongoDBAdapter(clientPromise), // Comment this out
+  
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -17,51 +17,79 @@ const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
-
-        await connectDB();
-
-        const user = await Employee.findOne({ email: credentials.email }).lean<IEmployee | null>();
-
-        if (user) {
-          const isValid = await bcrypt.compare(credentials.password, user.password);
-          if (isValid) {
-            return {
-              id: user._id.toString(),
-              name: user.name,
-              email: user.email,
-              role: user.role ?? "employee",
-            };
-          }
+        if (!credentials?.email || !credentials?.password) {
+          console.log('[Auth] Missing credentials');
+          return null;
         }
+
+        try {
+          await connectDB();
+
+          const user = await Employee.findOne({ email: credentials.email }).lean<IEmployee | null>();
+          console.log('[Auth] User found:', !!user);
+
+          if (user) {
+            const isValid = await bcrypt.compare(credentials.password, user.password);
+            console.log('[Auth] Password valid:', isValid);
+            
+            if (isValid) {
+              const userData = {
+                id: user._id.toString(),
+                name: user.name,
+                email: user.email,
+                role: user.role ?? "employee",
+              };
+              console.log('[Auth] Returning user data:', userData);
+              return userData;
+            }
+          }
+        } catch (error) {
+          console.error('[Auth] Authorization error:', error);
+        }
+        
         return null;
       },
     }),
   ],
+  
   callbacks: {
-    async session({ session, token }: { session: Session; token: JWT }) {
-      if (session.user) {
-        session.user.id = typeof token.sub === "string" ? token.sub : "";
-        session.user.role = typeof token.role === "string" ? token.role : "employee";
-      }
-      return session;
-    },
     async jwt({ token, user }: { token: JWT; user?: User }) {
-      if (user && typeof user.role === "string") {
+      // When user signs in, add role to token
+      if (user) {
+        console.log('[Auth] Adding user to token:', user);
         token.role = user.role;
+        token.id = user.id;
       }
       return token;
     },
+    
+    async session({ session, token }: { session: Session; token: JWT }) {
+      // Send properties to the client
+      if (token) {
+        console.log('[Auth] Creating session from token:', token);
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+      }
+      return session;
+    },
   },
+  
   session: {
     strategy: "jwt" as SessionStrategy,
+    maxAge: 24 * 60 * 60, // 24 hours
   },
+  
+  jwt: {
+    maxAge: 24 * 60 * 60, // 24 hours
+  },
+  
   pages: {
     signIn: "/login",
+    error: "/login", // Redirect to login on error
   },
+  
+  debug: process.env.NODE_ENV === "development",
 };
 
-// Export only the route handlers - no other exports!
 const handler = NextAuth(authOptions);
-
 export { handler as GET, handler as POST };
