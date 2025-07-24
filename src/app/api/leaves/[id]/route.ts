@@ -234,8 +234,12 @@ export async function PATCH(
       });
 
     } else if (action === 'cancel') {
-      // Employee cancelling their own request
-      if (leave.employeeId.toString() !== session.user.id) {
+      // Employee cancelling their own request OR admin/md cancelling any request
+      const userRole = session.user.role; // Assuming role is in session
+      const isAdminOrMd = userRole && ['md', 'admin'].includes(userRole.toLowerCase());
+      
+      // Check if user has permission to cancel this leave
+      if (!isAdminOrMd && (!leave.employeeId || leave.employeeId.toString() !== session.user.id)) {
         return NextResponse.json(
           { error: 'You can only cancel your own leave requests' },
           { status: 403 }
@@ -257,8 +261,8 @@ export async function PATCH(
           $push: {
             comments: {
               userId: session.user.id,
-              text: reason || 'Leave request cancelled by employee',
-              role: 'employee',
+              text: reason || 'Leave request cancelled',
+              role: userRole || 'employee',
               createdAt: new Date()
             }
           }
@@ -273,8 +277,12 @@ export async function PATCH(
       });
 
     } else if (action === 'update') {
-      // Employee updating their pending request
-      if (leave.employeeId.toString() !== session.user.id) {
+      // Employee updating their pending request OR admin/md updating any request
+      const userRole = session.user.role; // Assuming role is in session
+      const isAdminOrMd = userRole && ['md', 'admin'].includes(userRole.toLowerCase());
+      
+      // Check if user has permission to update this leave
+      if (!isAdminOrMd && (!leave.employeeId || leave.employeeId.toString() !== session.user.id)) {
         return NextResponse.json(
           { error: 'You can only update your own leave requests' },
           { status: 403 }
@@ -354,10 +362,16 @@ export async function DELETE(
       );
     }
 
-    const leave = await LeaveRequest.findOne({
-      _id: id,
-      employeeId: session.user.id // Ensure user can only delete their own leaves
-    });
+    const userRole = session.user.role; // Assuming role is in session
+    const isAdminOrMd = userRole && ['md', 'admin'].includes(userRole.toLowerCase());
+
+    // Find the leave request - admin/md can delete any, employees can only delete their own
+    const leave = isAdminOrMd 
+      ? await LeaveRequest.findById(id)
+      : await LeaveRequest.findOne({
+          _id: id,
+          employeeId: session.user.id
+        });
 
     if (!leave) {
       return NextResponse.json(
@@ -366,12 +380,25 @@ export async function DELETE(
       );
     }
 
-    if (leave.status !== 'pending') {
-      return NextResponse.json(
-        { error: 'Cannot delete processed leave requests. Use cancel instead.' },
-        { status: 400 }
-      );
+    // Employee can only delete their own pending requests
+    if (!isAdminOrMd) {
+      if (!leave.employeeId || leave.employeeId.toString() !== session.user.id) {
+        return NextResponse.json(
+          { error: 'You can only delete your own leave requests' },
+          { status: 403 }
+        );
+      }
+
+      if (leave.status !== 'pending') {
+        return NextResponse.json(
+          { error: 'Cannot delete processed leave requests. Use cancel instead.' },
+          { status: 400 }
+        );
+      }
     }
+
+    // Admin/MD can delete any leave request regardless of status
+    // Employee can only delete pending requests (checked above)
 
     await LeaveRequest.findByIdAndDelete(id);
 
