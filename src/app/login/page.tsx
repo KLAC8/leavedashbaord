@@ -93,7 +93,7 @@ export default function LoginPage() {
             <p className="text-gray-600">Sign in to your account</p>
             {callbackUrl !== '/' && (
               <p className="text-sm text-emerald-600 mt-2">
-                You'll be redirected after login
+                You will be redirected after login
               </p>
             )}
           </div>
